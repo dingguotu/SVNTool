@@ -34,7 +34,6 @@ namespace SvnTool
             this.label1 = new System.Windows.Forms.Label();
             this.urlTextBox = new System.Windows.Forms.TextBox();
             this.urlBtn = new System.Windows.Forms.Button();
-            this.urlFBD = new System.Windows.Forms.FolderBrowserDialog();
             this.label2 = new System.Windows.Forms.Label();
             this.startDTP = new System.Windows.Forms.DateTimePicker();
             this.endDTP = new System.Windows.Forms.DateTimePicker();
@@ -56,6 +55,8 @@ namespace SvnTool
             this.label6 = new System.Windows.Forms.Label();
             this.totalBox = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.summaryExportBtn = new System.Windows.Forms.Button();
+            this.exportBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.logDataGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.logFormatBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -63,7 +64,7 @@ namespace SvnTool
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(22, 38);
+            this.label1.Location = new System.Drawing.Point(16, 38);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(65, 12);
             this.label1.TabIndex = 0;
@@ -71,14 +72,14 @@ namespace SvnTool
             // 
             // urlTextBox
             // 
-            this.urlTextBox.Location = new System.Drawing.Point(93, 35);
+            this.urlTextBox.Location = new System.Drawing.Point(87, 35);
             this.urlTextBox.Name = "urlTextBox";
             this.urlTextBox.Size = new System.Drawing.Size(355, 21);
             this.urlTextBox.TabIndex = 1;
             // 
             // urlBtn
             // 
-            this.urlBtn.Location = new System.Drawing.Point(454, 34);
+            this.urlBtn.Location = new System.Drawing.Point(448, 34);
             this.urlBtn.Name = "urlBtn";
             this.urlBtn.Size = new System.Drawing.Size(67, 23);
             this.urlBtn.TabIndex = 2;
@@ -86,15 +87,10 @@ namespace SvnTool
             this.urlBtn.UseVisualStyleBackColor = true;
             this.urlBtn.Click += new System.EventHandler(this.urlBtn_Click);
             // 
-            // urlFBD
-            // 
-            this.urlFBD.Description = "请选择需要统计的项目";
-            this.urlFBD.ShowNewFolderButton = false;
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(24, 85);
+            this.label2.Location = new System.Drawing.Point(18, 85);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 12);
             this.label2.TabIndex = 3;
@@ -103,14 +99,14 @@ namespace SvnTool
             // startDTP
             // 
             this.startDTP.Checked = false;
-            this.startDTP.Location = new System.Drawing.Point(93, 79);
+            this.startDTP.Location = new System.Drawing.Point(87, 79);
             this.startDTP.Name = "startDTP";
             this.startDTP.Size = new System.Drawing.Size(131, 21);
             this.startDTP.TabIndex = 4;
             // 
             // endDTP
             // 
-            this.endDTP.Location = new System.Drawing.Point(316, 79);
+            this.endDTP.Location = new System.Drawing.Point(310, 79);
             this.endDTP.Name = "endDTP";
             this.endDTP.Size = new System.Drawing.Size(132, 21);
             this.endDTP.TabIndex = 6;
@@ -118,7 +114,7 @@ namespace SvnTool
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(245, 85);
+            this.label3.Location = new System.Drawing.Point(239, 85);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 12);
             this.label3.TabIndex = 5;
@@ -126,7 +122,7 @@ namespace SvnTool
             // 
             // logBtn
             // 
-            this.logBtn.Location = new System.Drawing.Point(454, 78);
+            this.logBtn.Location = new System.Drawing.Point(448, 78);
             this.logBtn.Name = "logBtn";
             this.logBtn.Size = new System.Drawing.Size(67, 23);
             this.logBtn.TabIndex = 7;
@@ -138,6 +134,9 @@ namespace SvnTool
             // 
             this.logDataGrid.AllowUserToAddRows = false;
             this.logDataGrid.AllowUserToDeleteRows = false;
+            this.logDataGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.logDataGrid.AutoGenerateColumns = false;
             this.logDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.logDataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -204,7 +203,7 @@ namespace SvnTool
             // authorCMB
             // 
             this.authorCMB.FormattingEnabled = true;
-            this.authorCMB.Location = new System.Drawing.Point(93, 123);
+            this.authorCMB.Location = new System.Drawing.Point(87, 123);
             this.authorCMB.Name = "authorCMB";
             this.authorCMB.Size = new System.Drawing.Size(88, 20);
             this.authorCMB.TabIndex = 9;
@@ -213,7 +212,7 @@ namespace SvnTool
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(34, 126);
+            this.label4.Location = new System.Drawing.Point(28, 126);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(53, 12);
             this.label4.TabIndex = 10;
@@ -222,7 +221,7 @@ namespace SvnTool
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(198, 127);
+            this.label5.Location = new System.Drawing.Point(192, 127);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(77, 12);
             this.label5.TabIndex = 11;
@@ -230,7 +229,7 @@ namespace SvnTool
             // 
             // appendBox
             // 
-            this.appendBox.Location = new System.Drawing.Point(281, 123);
+            this.appendBox.Location = new System.Drawing.Point(275, 123);
             this.appendBox.Name = "appendBox";
             this.appendBox.ReadOnly = true;
             this.appendBox.Size = new System.Drawing.Size(70, 21);
@@ -238,7 +237,7 @@ namespace SvnTool
             // 
             // removeBox
             // 
-            this.removeBox.Location = new System.Drawing.Point(454, 122);
+            this.removeBox.Location = new System.Drawing.Point(448, 122);
             this.removeBox.Name = "removeBox";
             this.removeBox.ReadOnly = true;
             this.removeBox.Size = new System.Drawing.Size(67, 21);
@@ -247,7 +246,7 @@ namespace SvnTool
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(371, 126);
+            this.label6.Location = new System.Drawing.Point(365, 126);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(77, 12);
             this.label6.TabIndex = 13;
@@ -270,11 +269,33 @@ namespace SvnTool
             this.label7.TabIndex = 15;
             this.label7.Text = "总行数：";
             // 
-            // Form1
+            // summaryExportBtn
+            // 
+            this.summaryExportBtn.Location = new System.Drawing.Point(532, 35);
+            this.summaryExportBtn.Name = "summaryExportBtn";
+            this.summaryExportBtn.Size = new System.Drawing.Size(67, 65);
+            this.summaryExportBtn.TabIndex = 17;
+            this.summaryExportBtn.Text = "导出统计";
+            this.summaryExportBtn.UseVisualStyleBackColor = true;
+            this.summaryExportBtn.Click += new System.EventHandler(this.summaryExportBtn_Click);
+            // 
+            // exportBtn
+            // 
+            this.exportBtn.Location = new System.Drawing.Point(605, 35);
+            this.exportBtn.Name = "exportBtn";
+            this.exportBtn.Size = new System.Drawing.Size(67, 65);
+            this.exportBtn.TabIndex = 18;
+            this.exportBtn.Text = "导出明细";
+            this.exportBtn.UseVisualStyleBackColor = true;
+            this.exportBtn.Click += new System.EventHandler(this.exportBtn_Click);
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(684, 429);
+            this.Controls.Add(this.exportBtn);
+            this.Controls.Add(this.summaryExportBtn);
             this.Controls.Add(this.totalBox);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.removeBox);
@@ -293,8 +314,7 @@ namespace SvnTool
             this.Controls.Add(this.urlTextBox);
             this.Controls.Add(this.label1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SVNLog";
             ((System.ComponentModel.ISupportInitialize)(this.logDataGrid)).EndInit();
@@ -309,7 +329,6 @@ namespace SvnTool
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox urlTextBox;
         private System.Windows.Forms.Button urlBtn;
-        private System.Windows.Forms.FolderBrowserDialog urlFBD;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DateTimePicker startDTP;
         private System.Windows.Forms.DateTimePicker endDTP;
@@ -331,6 +350,8 @@ namespace SvnTool
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox totalBox;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button summaryExportBtn;
+        private System.Windows.Forms.Button exportBtn;
     }
 }
 

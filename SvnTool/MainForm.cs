@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -19,6 +20,7 @@ namespace SvnTool
         private static string _svnRoot = string.Empty;
         private static string _rootDir = string.Empty;
         private List<LogFormat> _logFormats = new List<LogFormat>();
+        private List<LogSummary> _logSummary = new List<LogSummary>();
 
         private static string[] _ignoreFile = Util.GetConfig("IgnoreFile").Split(';').Where(s => !string.IsNullOrEmpty(s)).ToArray();
         private static string[] _ignoreFolder = Util.GetConfig("IgnoreFolder").Split(';').Where(s => !string.IsNullOrEmpty(s)).ToArray();
@@ -31,10 +33,14 @@ namespace SvnTool
 
         private void urlBtn_Click(object sender, EventArgs e)
         {
-            if (urlFBD.ShowDialog() == DialogResult.OK)
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            folderBrowserDialog.Description = "请选择需要统计的项目";
+            folderBrowserDialog.RootFolder = Environment.SpecialFolder.Desktop;
+            folderBrowserDialog.ShowNewFolderButton = false;
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                urlTextBox.Text = urlFBD.SelectedPath;
-                _rootDir = urlFBD.SelectedPath;
+                urlTextBox.Text = folderBrowserDialog.SelectedPath;
+                _rootDir = folderBrowserDialog.SelectedPath;
             }
         }
 
@@ -42,7 +48,7 @@ namespace SvnTool
         {
             if (string.IsNullOrWhiteSpace(_rootDir))
             {
-                MessageBox.Show("请输入正确的项目地址");
+                MessageBox.Show("请输入正确的项目地址", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -60,7 +66,7 @@ namespace SvnTool
             if (logResult.Contains("E200007"))
             {
                 LoadingHelper.CloseForm();
-                MessageBox.Show("请输入正确的项目地址");
+                MessageBox.Show("请输入正确的项目地址", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -69,7 +75,7 @@ namespace SvnTool
             if (log == null)
             {
                 LoadingHelper.CloseForm();
-                MessageBox.Show("未知错误");
+                MessageBox.Show("未知错误", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -77,8 +83,11 @@ namespace SvnTool
             GetSvnRoot();
             // 格式化Log对象，并计算修改行数
             GetLogFormats(log);
+            // 获取统计信息
+            GetLogSummary();
 
             logDataGrid.DataSource = _logFormats;
+            // 获取作者下拉数据
             var authors = _logFormats.Select(x => x.author).Distinct().OrderByDescending(a=>a).ToList();
             authors.Add("");
             authors.Reverse();
@@ -162,6 +171,7 @@ namespace SvnTool
                     _logFormats.Add(logFormat);
                 }
             }
+            _logFormats = _logFormats.OrderBy(x => x.checkTime).ThenBy(x => x.author).ToList();
         }
 
         /// <summary>
@@ -264,6 +274,24 @@ namespace SvnTool
             _svnRoot = HttpUtility.UrlDecode(root).Substring(1);
         }
 
+        /// <summary>
+        /// 获取统计信息
+        /// </summary>
+        private void GetLogSummary()
+        {
+            _logFormats.GroupBy(x => x.author).ToList().ForEach((item) =>
+            {
+                LogSummary summary = new LogSummary()
+                {
+                    author = item.Key,
+                    appendLines = item.Sum(x => x.appendLines),
+                    removeLines = item.Sum(x => x.removeLines),
+                    totalLines = item.Sum(x => x.totalLines)
+                };
+                _logSummary.Add(summary);
+            });
+        }
+
         private void authorCMB_SelectedValueChanged(object sender, EventArgs e)
         {
             var value = authorCMB.SelectedValue.ToString();
@@ -277,9 +305,108 @@ namespace SvnTool
             else {
                 var logFormats = _logFormats.Where(x => x.author == value).ToList();
                 logDataGrid.DataSource = logFormats;
-                appendBox.Text = logFormats.Sum(x => x.appendLines).ToString();
-                removeBox.Text = logFormats.Sum(x => x.removeLines).ToString();
-                totalBox.Text = logFormats.Sum(x => x.totalLines).ToString();
+
+                var summary = _logSummary.FirstOrDefault(x => x.author == value);
+                appendBox.Text = summary.appendLines.ToString();
+                removeBox.Text = summary.removeLines.ToString();
+                totalBox.Text = summary.totalLines.ToString();
+            }
+        }
+
+        private void summaryExportBtn_Click(object sender, EventArgs e)
+        {
+            Export(_logSummary);
+        }
+
+        private void exportBtn_Click(object sender, EventArgs e)
+        {
+            Export(_logFormats);
+        }
+
+        public void Export<T>(List<T> dataSource)
+        {
+            if (dataSource.Count == 0)
+            {
+                MessageBox.Show("没有数据可导出!", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "CSV文件(*.csv)|*.csv";
+            saveFileDialog.FilterIndex = 0;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.CreatePrompt = true;
+            saveFileDialog.FileName = null;
+            saveFileDialog.Title = "导出到CSV";
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            Stream stream = saveFileDialog.OpenFile();
+            StreamWriter sw = new StreamWriter(stream, Encoding.UTF8);
+            try
+            {
+                // 设置表头
+                SetHeader<T>(sw);
+                // 填充数据
+                SetBody(dataSource, sw);
+                sw.Close();
+                stream.Close();
+                MessageBox.Show("数据被导出到：" + saveFileDialog.FileName.ToString(), "导出完毕", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "导出错误", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        /// <summary>
+        /// 设置表头
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sw"></param>
+        private void SetHeader<T>(StreamWriter sw)
+        {
+            string strLine;
+            // 设置表头
+            PropertyInfo[] properties = typeof(T).GetProperties();
+            List<string> header = new List<string>();
+            foreach (var property in properties)
+            {
+                header.Add(property.GetCustomAttribute<DisplayNameAttribute>().DisplayName);
+            }
+            strLine = string.Join(",", header);
+            sw.WriteLine(strLine);
+        }
+
+        /// <summary>
+        /// 填充数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dataSource"></param>
+        /// <param name="sw"></param>
+        private void SetBody<T>(List<T> dataSource, StreamWriter sw)
+        {
+            //表的内容
+            foreach (var item in dataSource)
+            {
+                PropertyInfo[] properties = typeof(T).GetProperties();
+                List<string> cells = new List<string>();
+                foreach (var property in properties)
+                {
+                    var p = item.GetType().GetProperty(property.Name);
+                    var cell = p.GetValue(item, null);
+                    if (p.PropertyType == typeof(DateTime))
+                    {
+                        cells.Add(((DateTime)cell).ToString("yyyy-MM-dd HH:mm"));
+                    }
+                    else
+                    {
+                        cells.Add(cell.ToString());
+                    }
+                }
+                string strLine = string.Join(",", cells);
+                sw.WriteLine(strLine);
             }
         }
     }
