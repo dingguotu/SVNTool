@@ -279,6 +279,7 @@ namespace SvnTool
         /// </summary>
         private void GetLogSummary()
         {
+            _logSummary = new List<LogSummary>();
             _logFormats.GroupBy(x => x.author).ToList().ForEach((item) =>
             {
                 LogSummary summary = new LogSummary()
